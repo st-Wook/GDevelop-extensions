@@ -2,7 +2,9 @@ name: Extension issue to Pull Request conversion
 on:
   issues:
     types: [opened, labeled, edited]
-
+permissions:
+  contents: write
+  pull-requests: write
 jobs:
   generate-pr:
     # Only run it on extensions submissions (tag is ensured via the new issue form)
