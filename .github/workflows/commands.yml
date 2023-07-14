@@ -72,12 +72,12 @@ jobs:
           curl -L $(echo $BODY | grep -ioEh 'https?://\S+.zip' -m1) -o /tmp/ext.zip
           unzip -o /tmp/ext.zip -d ./extensions/community
 
-      - name: Rebuild the database
-        run: |
-          npm i
-          echo 'BUILD_LOGS<<EOF' >> $GITHUB_ENV
-          node scripts/generate-extensions-registry.js --disable-exit-code >> $GITHUB_ENV
-          echo 'EOF' >> $GITHUB_ENV
+      # - name: Rebuild the database
+      #   run: |
+      #     npm i
+      #     echo 'BUILD_LOGS<<EOF' >> $GITHUB_ENV
+      #     node scripts/generate-extensions-registry.js --disable-exit-code >> $GITHUB_ENV
+      #     echo 'EOF' >> $GITHUB_ENV
 
       - name: Setup git config
         if: ${{ contains(env.BUILD_LOGS, 'successfully updated') }}
