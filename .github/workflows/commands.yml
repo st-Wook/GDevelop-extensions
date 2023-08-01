@@ -79,6 +79,7 @@ jobs:
           echo "Downloading $FILENAME"
 
           if [[ "${FILENAME,,}" == *"sample"* ]]; then
+            echo "sample=true" >> $GITHUB_OUTPUT
             gh pr comment ${{ github.event.issue.number }} --body "✅ Cannot update the sample via command. Please feel free to upload the updated sample zip file in a comment!"
             exit 0
           fi
@@ -101,7 +102,6 @@ jobs:
       - name: Check for changed file
         id: git-diff
         run: |
-          echo "changed=false" >> $GITHUB_OUTPUT
           git diff --quiet || echo "changed=true" >> $GITHUB_OUTPUT
         shell: bash
 
@@ -113,7 +113,7 @@ jobs:
           git push
 
       - name: Notify no changed
-        if: ${{ steps.git-diff.outputs.changed != 'true' }}
+        if: ${{ steps.git-diff.outputs.changed != 'true' && steps.git-diff.outputs.sample != 'true' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: gh pr comment ${{ github.event.issue.number }} --body "❗ No updates found. Please check your file."
