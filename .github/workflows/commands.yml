@@ -1,5 +1,8 @@
 name: GDevelop Extensions PR commands
-on: issue_comment
+on:
+  issue_comment:
+    types: [created, edited]
+
 jobs:
   merge:
     runs-on: ubuntu-latest
@@ -52,7 +55,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh pr comment ${{ github.event.issue.number }} --body "❗ An internal error has occured. See logs at https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}."
+          gh pr comment ${{ github.event.issue.number }} --body "❗ An internal error has occurred. See logs at https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}."
 
   update:
     runs-on: ubuntu-latest
@@ -80,13 +83,11 @@ jobs:
       #     echo 'EOF' >> $GITHUB_ENV
 
       - name: Setup git config
-        if: ${{ contains(env.BUILD_LOGS, 'successfully updated') }}
         run: |
           git config --global user.name '${{ github.actor }}'
           git config --global user.email '${{ github.actor }}@users.noreply.github.com'
 
       - name: Check for changed file
-        if: ${{ contains(env.BUILD_LOGS, 'successfully updated') }}
         id: git-diff
         run: |
           echo "changed=false" >> $GITHUB_OUTPUT
@@ -94,7 +95,7 @@ jobs:
         shell: bash
 
       - name: Commit and push
-        if: ${{ steps.git-diff.outputs.changed == 'true' }}
+        if: ${{ steps.git-diff.outputs.changed == 'true' && contains(env.BUILD_LOGS, 'successfully updated') }}
         run: |
           git add extensions
           git commit -m "Updated extension"
@@ -107,13 +108,13 @@ jobs:
         run: gh pr comment ${{ github.event.issue.number }} --body "❗ No updates found. Please check your file."
 
       - name: Notify success
-        if: ${{ contains(env.BUILD_LOGS, 'successfully updated') }}
+        if: ${{ steps.git-diff.outputs.changed == 'true' && contains(env.BUILD_LOGS, 'successfully updated') }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: gh pr comment ${{ github.event.issue.number }} --body "✅ Successfully updated the extension."
 
       - name: Notify build error
-        if: ${{ !contains(env.BUILD_LOGS, 'successfully updated') }}
+        if: ${{ steps.git-diff.outputs.changed == 'true' && !contains(env.BUILD_LOGS, 'successfully updated') }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -127,4 +128,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh pr comment ${{ github.event.issue.number }} --body "❗ An internal error has occured. See logs at https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}."
+          gh pr comment ${{ github.event.issue.number }} --body "❗ An internal error has occurred. See logs at https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}."
