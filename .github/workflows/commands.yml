@@ -78,7 +78,7 @@ jobs:
 
           echo "Downloading $FILENAME"
 
-          if [[ $FILENAME =~ (?i)sample ]]; then
+          if [[ $FILENAME == (?i)sample ]]; then
             gh pr comment ${{ github.event.issue.number }} --body "✅ Cannot update the sample via command. Please feel free to upload the updated sample zip file in a comment!"
             exit 0
           fi
