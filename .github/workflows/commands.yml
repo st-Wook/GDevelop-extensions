@@ -71,7 +71,16 @@ jobs:
       - name: Download extension
         env:
           BODY: ${{ github.event.comment.body }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          FILEURL=$(echo $BODY | grep -ioEh 'https?://\S+.zip' -m1)
+          FILENAME=$(basename $FILEURL)
+
+          if [[ $FILENAME =~ (?i)sample ]]; then
+            gh pr comment ${{ github.event.issue.number }} --body "✅ Cannot update the sample via command. Please feel free to upload the updated sample zip file in a comment!"
+            exit 0
+          fi
+
           curl -L $(echo $BODY | grep -ioEh 'https?://\S+.zip' -m1) -o /tmp/ext.zip
           unzip -o /tmp/ext.zip -d ./extensions/community
 
